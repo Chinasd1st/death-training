@@ -6,6 +6,7 @@ import './styles/base.css';
 import './styles/hero.css';
 import './styles/sections.css';
 import './styles/extra.css';
+import './styles/warning.css';
 
 import { buildModel } from './model';
 import { GLYPHS, HEI, NUM } from './data/schedule';
@@ -22,6 +23,7 @@ import { createExams } from './sections/exams';
 import { createOutro } from './sections/outro';
 import { createScroll } from './ui/scroll';
 import { OX_COLUMN, CIRCUIT, CHAIN, h } from './ui/dom';
+import { showWarning } from './ui/warning';
 
 installEaseVars();
 const rootStyle = document.documentElement.style;
@@ -194,6 +196,9 @@ async function boot(): Promise<void> {
   };
 
   if (skipSplash) { reveal(); done(); return; }
+  // 光敏性癫痫警告：淡入 → 停留 → 淡出，之后才播放开场
+  const choice = await showWarning();
+  if (choice === 'skip') { reveal(); done(); return; }
   fxFront.width = fxFront.width; // 清空
   document.body.classList.add('is-playing');
   runSplash({

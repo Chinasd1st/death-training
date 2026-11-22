@@ -1,0 +1,40 @@
+/* ============ 光敏性癫痫警告 ============ */
+.warn {
+  position: fixed; inset: 0; z-index: 200;
+  display: grid; place-items: center;
+  padding: var(--pad-x);
+  background: var(--ink); color: var(--cream);
+  cursor: pointer;
+}
+.warn-box {
+  max-width: 640px; text-align: center;
+  opacity: 0; transform: translate3d(0, 16px, 0);
+  /* 淡入 / 淡出 0.5s = 4 拍（125ms 一步） */
+  transition: opacity .5s var(--st-expo-050), transform .5s var(--st-expo-050);
+}
+.warn.in .warn-box { opacity: 1; transform: none; }
+.warn.out .warn-box { opacity: 0; transform: translate3d(0, -12px, 0); }
+
+.warn-icon { width: 56px; margin: 0 auto 22px; }
+.warn-icon svg { display: block; width: 100%; height: auto; }
+.warn-icon path { fill: none; stroke: var(--cream); stroke-width: 4; stroke-linejoin: round; }
+.warn-icon rect { fill: var(--cream); }
+
+.warn-t { font: 900 clamp(24px, 3vw, 40px)/1.2 var(--hei); letter-spacing: .14em; }
+.warn-en { margin-top: 8px; font: 600 clamp(11px, .9vw, 14px)/1 var(--num); letter-spacing: .3em; opacity: .6; }
+.warn-d { margin-top: 26px; font: 500 clamp(14px, 1.15vw, 17px)/1.9 var(--hei); letter-spacing: .04em; opacity: .9; }
+
+.warn-btns { margin-top: 32px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.warn-btns button {
+  font: 900 15px/1 var(--hei); letter-spacing: .12em;
+  padding: 14px 22px; border: 0; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+}
+.warn-go { background: var(--cream); color: var(--blue); }
+.warn-skip { background: transparent; color: var(--cream); box-shadow: inset 0 0 0 2px rgba(244, 241, 230, .6); }
+.warn-btns button:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
+.warn-hint { margin-top: 20px; font: 500 12px/1 var(--hei); letter-spacing: .2em; opacity: .45; }
+
+@media (prefers-reduced-motion: reduce) {
+  .warn-box { transition-duration: .2s; }
+}
