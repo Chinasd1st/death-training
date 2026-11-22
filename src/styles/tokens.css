@@ -1,0 +1,31 @@
+:root {
+  /* 主色：电光蓝（画面绝大部分） */
+  --blue: #1b12f0;
+  --blue-deep: #160bd6;
+  --blue-soft: #3a33f5;
+  /* 中性 */
+  --cream: #f4f1e6;
+  --paper: #f8f6ee;
+  --ink: #0b0b26;
+  /* 点缀：只用于小面积标签 / 当前态 */
+  --lime: #c8ff1e;
+  --magenta: #ff1e6e;
+  --cyan: #3ae6ff;
+
+  --hei: "Noto Sans SC Variable", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --num: "Barlow Condensed", "Noto Sans SC Variable", sans-serif;
+
+  /*
+   * 全站统一的“三拍一”节拍（每步 125ms）。JS 会用 CSS linear() 写入按 125ms 量化的弹簧 / 指数曲线；
+   * 不支持 linear() 的浏览器回退到等效的 steps()（仍是 125ms 一步，只是失去过冲）。
+   */
+  --st-spring-085: steps(7, end);
+  --st-spring-110: steps(9, end);
+  --st-expo-125: steps(10, end);
+  --st-expo-100: steps(8, end);
+  --st-expo-050: steps(4, end);
+
+  --pad-x: clamp(20px, 5vw, 96px);
+  --svh: 100vh;
+}
+@supports (height: 100svh) { :root { --svh: 100svh; } }

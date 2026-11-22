@@ -1,0 +1,21 @@
+{
+  "name": "death-training-website",
+  "private": true,
+  "version": "1.0.0",
+  "description": "浙江省桐乡市高级中学 · 死亡限时训练倒计时网站（Vite 静态站，GitHub Pages）",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource-variable/noto-sans-sc": "^5.0.0",
+    "@fontsource/barlow-condensed": "^5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "~7.0.2",
+    "vite": "^8.3.6"
+  }
+}

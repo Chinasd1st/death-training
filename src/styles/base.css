@@ -1,0 +1,94 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+  background: var(--blue);
+}
+body {
+  min-height: 100%;
+  background: var(--blue);
+  color: var(--cream);
+  font-family: var(--hei);
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+}
+body.is-splash { overflow: hidden; height: var(--svh); touch-action: none; }
+::selection { background: var(--cream); color: var(--blue); }
+a { color: inherit; text-decoration: none; }
+
+/* 图层：全页丝带 back（内容之下）→ 内容 → 全页丝带 front / 开场 */
+#fx-back { position: fixed; left: 0; top: 0; z-index: 0; pointer-events: none; }
+#app { position: relative; z-index: 1; }
+#fx { position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none; }
+.veil {
+  position: fixed; inset: 0; z-index: 99; background: var(--ink);
+  transition: opacity .5s var(--st-expo-050), visibility 0s linear .5s;
+}
+body.is-playing .veil, body.is-ready .veil { opacity: 0; visibility: hidden; }
+
+/* 切角（八边形），--c 控制切角 */
+.cut {
+  clip-path: polygon(
+    var(--c, 24px) 0, calc(100% - var(--c, 24px)) 0, 100% var(--c, 24px), 100% calc(100% - var(--c, 24px)),
+    calc(100% - var(--c, 24px)) 100%, var(--c, 24px) 100%, 0 calc(100% - var(--c, 24px)), 0 var(--c, 24px)
+  );
+}
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* 圆形字块（MV 竖排歌词块） */
+.chips-row { display: flex; flex-wrap: wrap; }
+.chip {
+  --s: clamp(40px, 4.4vw, 68px);
+  position: relative; width: var(--s); height: var(--s);
+  display: grid; place-items: center; background: var(--blue);
+}
+.chip::before {
+  content: ""; position: absolute; inset: 6%; border-radius: 50%;
+  background: var(--cream);
+  box-shadow: inset 0 0 0 calc(var(--s) * .05) var(--cream), inset 0 0 0 calc(var(--s) * .08) var(--blue);
+}
+.chip span { position: relative; font: 900 calc(var(--s) * .42)/1 var(--hei); color: var(--blue); }
+.chip.alt { background: var(--cream); }
+.chip.alt::before { background: var(--blue); box-shadow: inset 0 0 0 calc(var(--s) * .05) var(--blue), inset 0 0 0 calc(var(--s) * .08) var(--cream); }
+.chip.alt span { color: var(--cream); }
+.chip.past { background: #8d89f7; }
+.chip.past::before { background: #8d89f7; box-shadow: inset 0 0 0 calc(var(--s) * .05) #8d89f7, inset 0 0 0 calc(var(--s) * .08) var(--cream); }
+.chip.past span { color: var(--cream); }
+.chip.now::before { background: var(--magenta); box-shadow: inset 0 0 0 calc(var(--s) * .05) var(--magenta), inset 0 0 0 calc(var(--s) * .08) var(--cream); }
+.chip.now span { color: var(--cream); }
+
+/* 数字滚轮：.875s = 7 拍 */
+.roller { display: inline-flex; font-family: var(--num); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.dg { display: inline-block; height: 1em; overflow: hidden; }
+.st {
+  display: flex; flex-direction: column;
+  transform: translate3d(0, calc(var(--d, 0) * -1em), 0);
+  transition: transform .875s var(--st-spring-085);
+  will-change: transform;
+}
+.st > span { display: block; height: 1em; text-align: center; }
+.st.snap { transition: none; }
+
+/* 显现：1.125s = 9 拍，弹簧 */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 48px, 0);
+  transition: opacity .5s var(--st-expo-050), transform 1.125s var(--st-spring-110);
+  transition-delay: calc(var(--i, 0) * 125ms);
+}
+[data-reveal].in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  [data-reveal] { opacity: 1; transform: none; transition: none; }
+  .st { transition-duration: .25s; }
+}
