@@ -12,9 +12,11 @@ export interface Track extends Section { tick(dt: number, sc: ScrollState): void
 export function createTrack(m0: Model): Track {
   const el = h('section', 'sec s-track');
   el.id = 'track';
+  el.dataset.tr = 'tiles';
   el.innerHTML = `
     <div class="tr-sticky">
-      ${head('02', '训练轨道', 'UPCOMING')}
+      <div class="giant g-wed" aria-hidden="true">WED</div>
+      ${head('02', '训练<em class="y">轨</em>道', 'UPCOMING')}
       <div class="tr-rail" aria-hidden="true"><i class="tr-prog"></i></div>
       <div class="tr-view"><div class="tr-track"></div></div>
       <div class="tr-foot"><span class="tr-count"></span><span class="tr-hint">继续向下滚动 →</span></div>

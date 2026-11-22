@@ -1,0 +1,132 @@
+/* ============ 新增：超大字 / 光感 / 机械部件 / 歌词 / 链条分隔 ============ */
+:root { --yellow: #ffd21e; }
+
+/* 段落：裁切超大字，不破坏 sticky（overflow: clip 不产生滚动容器） */
+.sec { overflow: clip; }
+.sec > :not(.giant):not(.tr-sticky) { position: relative; z-index: 1; }
+.tr-sticky > :not(.giant) { position: relative; z-index: 1; }
+
+.giant {
+  position: absolute; z-index: 0; pointer-events: none; user-select: none; white-space: nowrap;
+  font: 700 clamp(220px, 40vw, 820px)/.78 var(--num);
+  letter-spacing: -.02em; color: var(--blue-deep);
+}
+.g-next { right: -6vw; top: 4vh; }
+.g-wed  { left: -3vw; bottom: -8vh; }
+.g-exam { right: -5vw; top: 2vh; }
+.g-time { right: -4vw; bottom: -10vh; font-size: clamp(200px, 34vw, 680px); }
+
+/* 单字染色（MV 歌词里个别字换色） */
+.sh-t em { font-style: normal; color: var(--lime); }
+.sh-t em.m { color: var(--magenta); }
+.sh-t em.y { color: var(--yellow); }
+
+/* 首屏光感层 */
+.hero-light {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; display: block; pointer-events: none;
+  transform: translate3d(0, calc(var(--p) * -6vh), 0);
+}
+
+/* 黄绿链条分隔：2s = 16 拍，每拍前进 4px */
+.chain-div {
+  position: relative; z-index: 2; height: 30px;
+  background: var(--ink) var(--chain) 0 50% / 64px 24px repeat-x;
+  animation: chain-run 2s steps(16, end) infinite;
+}
+@keyframes chain-run { to { background-position: 64px 50%; } }
+
+/* ---- 机械部件 ---- */
+.gz-row {
+  --c: 18px;
+  display: grid; grid-template-columns: auto auto auto minmax(0, 1fr);
+  gap: clamp(14px, 1.6vw, 28px); align-items: start;
+  background: var(--ink) var(--circuit) 0 0 / 120px 120px;
+  padding: clamp(14px, 1.6vw, 24px);
+}
+.gz { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.gz-k { font: 600 12px/1 var(--num); letter-spacing: .24em; opacity: .7; white-space: nowrap; }
+.gz-c { font: 900 13px/1 var(--hei); letter-spacing: .08em; white-space: nowrap; }
+
+.sw {
+  position: relative; width: 92px; height: 40px; border-radius: 999px;
+  box-shadow: inset 0 0 0 3px var(--cream);
+  display: flex; align-items: center; justify-content: space-between; padding: 0 12px;
+  font: 700 13px/1 var(--num); letter-spacing: .1em;
+}
+.sw i {
+  position: absolute; top: 5px; left: 5px; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--cream); transition: transform .5s var(--st-expo-050);
+}
+.gz-sw.is-on .sw { background: var(--magenta); box-shadow: none; }
+.gz-sw.is-on .sw i { transform: translateX(52px); }
+
+.bat {
+  position: relative; display: flex; gap: 3px; padding: 5px; width: 132px; height: 40px;
+  box-shadow: inset 0 0 0 3px var(--cream);
+}
+.bat::after { content: ""; position: absolute; right: -9px; top: 12px; width: 6px; height: 16px; background: var(--cream); }
+.bat i { flex: 1; background: rgba(244, 241, 230, .14); }
+.bat i.on { background: var(--cream); }
+
+.dial { width: 78px; height: 78px; display: block; }
+.dial .d-ring { fill: none; stroke: var(--cream); stroke-width: 3; }
+.dial .d-dash { fill: none; stroke: var(--cream); stroke-width: 1.5; stroke-dasharray: 2 5; opacity: .6; }
+.dial .dl circle { fill: none; stroke: var(--cream); stroke-width: 1.5; }
+.dial .dl text { font: 900 11px var(--hei); fill: var(--cream); text-anchor: middle; dominant-baseline: central; }
+.dial .dl.on circle { fill: var(--magenta); stroke: var(--magenta); }
+.dial .needle {
+  transform-box: view-box; transform-origin: 60px 60px; transform: rotate(var(--a, 0deg));
+  transition: transform .875s var(--st-spring-085);
+}
+.dial .needle line { stroke: var(--cream); stroke-width: 5; stroke-linecap: round; }
+.dial .needle circle { fill: var(--cream); }
+
+.mx { display: grid; grid-template-columns: repeat(var(--cols, 24), minmax(0, 1fr)); gap: 2px; width: 100%; }
+.mx i { aspect-ratio: 1; background: rgba(244, 241, 230, .12); }
+.mx i.on { background: var(--cream); }
+.mx i.cur { animation: blink .5s steps(1, end) infinite; }
+@keyframes blink { 50% { background: var(--cyan); } }
+
+.ex-side { background: var(--ink) var(--circuit) 0 0 / 120px 120px; }
+
+/* ---- 歌词间奏 ---- */
+.s-lyric { min-height: calc(var(--svh) * .95); display: flex; align-items: center; }
+.ly-wrap { max-width: 100%; }
+.capsule {
+  display: inline-flex; align-items: center;
+  padding: clamp(6px, .8vw, 12px) clamp(16px, 1.8vw, 28px);
+  background: var(--ink); border-radius: 999px;
+}
+.capsule .chip { --s: clamp(40px, 4.2vw, 66px); }
+.lyric { margin-top: .32em; font: 900 clamp(40px, 6.6vw, 128px)/1.12 var(--hei); letter-spacing: .02em; color: #fff; }
+.lyric span { display: inline-block; }
+.lyric .hl.y { color: var(--yellow); }
+.lyric .hl.l { color: var(--lime); }
+.lyric span.blk { background: var(--ink); color: transparent; }
+.ly2 { font-size: clamp(26px, 3.8vw, 74px); }
+.ly-dots { display: flex; align-items: center; gap: 14px; margin-top: clamp(22px, 4vh, 44px); }
+.ly-dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--cream); }
+.ly-dots i.s { width: 9px; height: 9px; }
+.ly-dots i.xs { width: 5px; height: 5px; }
+
+/* ---- 收尾：后段青蓝天色 + 月光 ---- */
+.s-outro {
+  background:
+    radial-gradient(circle at 80% 42%, rgba(232, 238, 255, .55) 0, rgba(150, 175, 255, .2) 18%, transparent 40%),
+    linear-gradient(180deg, var(--blue) 0%, #2440ff 45%, #3a6dff 100%);
+}
+.s-outro .oc-star { fill: rgba(244, 241, 230, .2); }
+
+/* ---- 移动端 ---- */
+@media (max-width: 860px) {
+  .gz-row { grid-template-columns: repeat(3, auto); justify-content: space-between; }
+  .gz-mx { grid-column: 1 / -1; }
+  .giant { font-size: 62vw; }
+  .g-time { font-size: 48vw; bottom: -4vh; }
+  .capsule .chip { --s: 11vw; }
+}
+@media (max-width: 400px) {
+  .bat { width: 104px; }
+  .sw { width: 80px; }
+  .gz-sw.is-on .sw i { transform: translateX(40px); }
+}

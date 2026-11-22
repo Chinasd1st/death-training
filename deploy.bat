@@ -60,6 +60,7 @@ if errorlevel 1 (
 git branch -M main
 
 rem 3) Create remote repo if missing, then push
+set "NEWREPO="
 gh repo view %OWNER%/%REPO% >nul 2>nul
 if errorlevel 1 (
   echo [i] Creating public repo %OWNER%/%REPO% ...
@@ -68,6 +69,7 @@ if errorlevel 1 (
     pause
     exit /b 1
   )
+  set "NEWREPO=1"
 ) else (
   git remote get-url origin >nul 2>nul
   if errorlevel 1 git remote add origin https://github.com/%OWNER%/%REPO%.git
@@ -82,10 +84,15 @@ rem 4) Enable Pages with GitHub Actions as source (update if already enabled)
 gh api -X POST repos/%OWNER%/%REPO%/pages -f build_type=workflow >nul 2>nul
 if errorlevel 1 gh api -X PUT repos/%OWNER%/%REPO%/pages -f build_type=workflow >nul 2>nul
 
-rem 5) Trigger deploy and wait
-timeout /t 3 >nul
-gh workflow run deploy.yml >nul 2>nul
-timeout /t 6 >nul
+rem 5) The push already triggers a deploy run. Only on a brand-new repo
+rem    (Pages was not enabled yet when that first run started) trigger one more.
+rem    Runs share one concurrency group, so an older queued run may show
+rem    "Canceling since a higher priority waiting request for pages exists" - that is expected.
+if defined NEWREPO (
+  timeout /t 3 >nul
+  gh workflow run deploy.yml >nul 2>nul
+)
+timeout /t 8 >nul
 set "RUN="
 for /f "delims=" %%r in ('gh run list --workflow deploy.yml --limit 1 --json databaseId --jq ".[0].databaseId"') do set "RUN=%%r"
 if defined RUN (

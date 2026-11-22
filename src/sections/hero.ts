@@ -8,6 +8,7 @@ import { drawFrame, FRAME_KINDS, FRAME_LABEL, type FrameInfo } from '../fx/frame
 import { prismFlash, flashEnv } from '../fx/flash';
 import { Ambient } from '../fx/ribbons';
 import { mountTitle, type TitleLayer } from '../fx/title';
+import { HeroLight } from '../fx/light';
 import { h } from '../ui/dom';
 import type { ScrollState } from '../ui/scroll';
 
@@ -41,6 +42,10 @@ function bandUnit(kind: 'a' | 'b', m: Model): string {
 export function createHero(m0: Model): Hero {
   const el = h('section', 'hero');
   el.id = 'top';
+
+  // 光感层：超大字遮罩 + 月亮 + 光斑 + 城市剪影
+  const light = new HeroLight();
+  el.appendChild(light.canvas);
 
   // 闪回窗口
   const fw = h('div', 'fw cut');
@@ -76,7 +81,7 @@ export function createHero(m0: Model): Hero {
   el.appendChild(cue);
 
   const title = mountTitle(el, ht);
-  const amb = new Ambient({ seed: 7, streamers: [0.9, 2.2], maxStreamers: 6, stripes: [0.35, 1.1], shardRate: 2.2 });
+  const amb = new Ambient({ seed: 7, streamers: [0.9, 2.2], maxStreamers: 6, stripes: [0.35, 1.1], shardRate: 7, sparkleRate: 4 });
 
   // ---- 闪回 ----
   const buf = document.createElement('canvas');
@@ -101,6 +106,7 @@ export function createHero(m0: Model): Hero {
     for (const c of [fcv, buf]) { c.width = Math.max(1, Math.round(fwW * dpr)); c.height = Math.max(1, Math.round(fwH * dpr)); }
     bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawFrame(bctx, fwW, fwH, FRAME_KINDS[kindIdx], info, cutCount + 3);
+    light.setFrame(buf);
   }
   function cut(t: number): void {
     kindIdx = (kindIdx + 1) % FRAME_KINDS.length;
@@ -108,6 +114,7 @@ export function createHero(m0: Model): Hero {
     cutT = t;
     bctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     drawFrame(bctx, fwW, fwH, FRAME_KINDS[kindIdx], info, cutCount + 3);
+    light.setFrame(buf);
     fcap.querySelector('.i')!.textContent = `${pad(kindIdx + 1)}/${pad(FRAME_KINDS.length)}`;
     fcap.querySelector('.l')!.textContent = FRAME_LABEL[FRAME_KINDS[kindIdx]];
     if (cutCount % 2 === 0) title.glitch(t);
@@ -144,6 +151,7 @@ export function createHero(m0: Model): Hero {
   ht.addEventListener('pointerdown', () => amb.add((performance.now() - t0) / 1000, 2));
 
   function resize(): void {
+    light.resize(el.clientWidth, el.clientHeight);
     sizeFrames();
     title.layout();
     amb.resize(el.clientWidth, el.clientHeight);
@@ -188,6 +196,7 @@ export function createHero(m0: Model): Hero {
       }
       if (t - cutT >= 1) cut(t);
       drawReel(t);
+      light.render(t);
       amb.update(t);
       title.render(t, amb);
     },

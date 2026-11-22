@@ -136,6 +136,22 @@ export function mountTitle(host: HTMLElement, ht: HTMLElement): TitleLayer {
     });
   }
 
+  /** MV 式黑块遮挡：每次切片错位后 3 拍内，随机黑块盖住部分笔画 */
+  function drawBlocks(t: number): void {
+    const ga = t - glitchT;
+    if (glitchT < 0 || ga < 0 || ga >= 0.375 || rects.length < 3) return;
+    const gr = rng(glitchSeed * 31 + Math.floor(ga / 0.125));
+    ctx.fillStyle = C.ink;
+    for (let k = 0; k < 3; k++) {
+      const r = rects[1 + Math.floor(gr() * 2)];
+      const w = r.h * (0.28 + gr() * 0.5);
+      const hh = r.clipH * (0.16 + gr() * 0.28);
+      const x = r.x + gr() * Math.max(1, r.w - w);
+      const y = r.clipY + gr() * Math.max(1, r.clipH - hh);
+      ctx.fillRect(x, y, w, hh);
+    }
+  }
+
   return {
     get mode() { return mode; },
     canvas,
@@ -156,6 +172,8 @@ export function mountTitle(host: HTMLElement, ht: HTMLElement): TitleLayer {
       renderGlyphs(t);
       ctx.globalCompositeOperation = 'source-atop';
       amb.drawStripes(ctx, t);
+      ctx.globalCompositeOperation = 'source-over';
+      drawBlocks(t);
       ctx.globalCompositeOperation = 'destination-over';
       amb.drawStreamers(ctx, t, 'back');
       ctx.globalCompositeOperation = 'source-over';

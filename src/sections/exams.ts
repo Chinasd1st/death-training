@@ -11,7 +11,8 @@ export interface Exams extends Section { tick(): void }
 export function createExams(m0: Model): Exams {
   const el = h('section', 'sec s-exams');
   el.id = 'exams';
-  el.innerHTML = `${head('03', '考试', 'EXAMS')}<div class="ex-grid"></div><div class="ex-done" data-reveal></div>`;
+  el.dataset.tr = 'bars';
+  el.innerHTML = `<div class="giant g-exam" aria-hidden="true">EXAM</div>${head('03', '<em class="m">考</em>试', 'EXAMS')}<div class="ex-grid"></div><div class="ex-done" data-reveal></div>`;
   const grid = el.querySelector('.ex-grid') as HTMLElement;
   let panels: { e: ExamView; el: HTMLElement; r: Roller[] }[] = [];
   let lastKey = '';

@@ -23,6 +23,7 @@ interface Shard {
   born: number; x: number; y: number; vx: number; vy: number;
   s: number; rot: number; vr: number; sway: number; ph: number; color: string; life: number;
 }
+interface Spark { born: number; x: number; y: number; s: number; life: number }
 
 const FACES: [string, string, number][] = [
   [C.cream, '#BFC2EE', 5],
@@ -46,7 +47,8 @@ export interface AmbientOpts {
   streamers: [number, number];   // 生成间隔范围（秒）
   maxStreamers: number;
   stripes: [number, number] | null;
-  shardRate: number;             // 每秒生成彩纸数
+  shardRate: number;             // 每秒生成碎屑数
+  sparkleRate: number;           // 每秒生成白色小四芒星数
 }
 
 export class Ambient {
@@ -54,9 +56,11 @@ export class Ambient {
   private s: Streamer[] = [];
   private st: Stripe[] = [];
   private sh: Shard[] = [];
+  private sp: Spark[] = [];
   private nextS = 0;
   private nextSt = 0;
   private shardAcc = 0;
+  private sparkAcc = 0;
   private lastT = -1;
   W = 0; H = 0; scale = 1;
   /** 粗色条的活动范围（通常是标题包围盒） */
@@ -69,7 +73,8 @@ export class Ambient {
   /** 预先放几条在画面中，避免开场空白 */
   prime(t: number, n: number): void {
     for (let i = 0; i < n; i++) this.spawnStreamer(t - (0.6 + this.r() * 2.2));
-    for (let i = 0; i < this.o.shardRate * 4; i++) this.spawnShard(t - this.r() * 5);
+    for (let i = 0; i < this.o.shardRate * 8; i++) this.spawnShard(t - this.r() * 9, true);
+    for (let i = 0; i < this.o.sparkleRate; i++) this.spawnSpark(t - this.r() * 0.5);
   }
 
   /** 手动加几条（点击标题时） */
@@ -90,10 +95,13 @@ export class Ambient {
     }
     this.shardAcc += dt * this.o.shardRate;
     while (this.shardAcc >= 1) { this.spawnShard(t); this.shardAcc--; }
+    this.sparkAcc += dt * this.o.sparkleRate;
+    while (this.sparkAcc >= 1) { this.spawnSpark(t); this.sparkAcc--; }
 
     this.s = this.s.filter((x) => (t - x.born) * x.speed - x.len < x.total);
     this.st = this.st.filter((x) => t - x.born < x.life);
     this.sh = this.sh.filter((x) => t - x.born < x.life);
+    this.sp = this.sp.filter((x) => t - x.born < x.life);
   }
 
   private spawnStreamer(t: number): void {
@@ -136,14 +144,24 @@ export class Ambient {
     });
   }
 
-  private spawnShard(t: number): void {
+  /** 碎屑：MV 里几乎每帧都有的细碎彩色颗粒，大多很小，少数稍大 */
+  private spawnShard(t: number, anywhere = false): void {
     const r = this.r, sc = this.scale;
+    const big = r() < 0.12;
     this.sh.push({
-      born: t, x: r() * this.W, y: -20 - r() * this.H * 0.2,
+      born: t, x: r() * this.W, y: anywhere ? r() * this.H : -20 - r() * this.H * 0.2,
       vx: (r() - 0.5) * 30 * sc, vy: (30 + r() * 60) * sc,
-      s: (3 + r() * 6) * Math.max(0.7, sc), rot: r() * 6.3, vr: (r() - 0.5) * 3,
+      s: (big ? 4 + r() * 4 : 1.4 + r() * 2.6) * Math.max(0.8, sc), rot: r() * 6.3, vr: (r() - 0.5) * 3,
       sway: (10 + r() * 40) * sc, ph: r() * 6.3,
       color: SHARDS[Math.floor(r() * SHARDS.length)], life: 12 + r() * 10,
+    });
+  }
+
+  private spawnSpark(t: number): void {
+    const r = this.r;
+    this.sp.push({
+      born: t, x: r() * this.W, y: r() * this.H,
+      s: (4 + r() * 9) * Math.max(0.8, this.scale), life: 0.5 + r() * 0.625,
     });
   }
 
@@ -219,6 +237,17 @@ export class Ambient {
       ctx.fillStyle = s.color;
       ctx.beginPath(); ctx.moveTo(0, -s.s); ctx.lineTo(s.s * 0.8, s.s * 0.6); ctx.lineTo(-s.s * 0.7, s.s * 0.3); ctx.closePath(); ctx.fill();
       ctx.restore();
+    }
+    // 白色小四芒星：亮起 → 熄灭
+    ctx.fillStyle = '#FFFFFF';
+    for (const p of this.sp) {
+      const k = Math.sin(Math.PI * Math.min(1, Math.max(0, (t - p.born) / p.life)));
+      if (k <= 0.05) continue;
+      const s = p.s * k, x = p.x, y = p.y;
+      ctx.beginPath();
+      ctx.moveTo(x, y - s); ctx.quadraticCurveTo(x, y, x + s, y); ctx.quadraticCurveTo(x, y, x, y + s);
+      ctx.quadraticCurveTo(x, y, x - s, y); ctx.quadraticCurveTo(x, y, x, y - s);
+      ctx.fill();
     }
   }
 }

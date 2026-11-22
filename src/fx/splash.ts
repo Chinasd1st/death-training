@@ -25,7 +25,7 @@ export function runSplash(o: SplashOpts): void {
   const scene = document.createElement('canvas');
   const sctx = scene.getContext('2d')!;
   let W = 0, H = 0, dpr = 1;
-  const amb = new Ambient({ seed: 11, streamers: [0.25, 0.5], maxStreamers: 7, stripes: null, shardRate: 6 });
+  const amb = new Ambient({ seed: 11, streamers: [0.25, 0.5], maxStreamers: 7, stripes: null, shardRate: 14, sparkleRate: 8 });
 
   function resize(): void {
     dpr = Math.min(2, window.devicePixelRatio || 1);

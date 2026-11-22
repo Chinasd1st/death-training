@@ -7,6 +7,7 @@ import type { Section } from './next';
 
 export function createOutro(m0: Model): Section {
   const el = h('section', 'sec s-outro');
+  el.dataset.tr = 'tiles';
   el.innerHTML = `
     <div class="oc" data-reveal>
       <svg class="oc-star" viewBox="0 0 200 200" aria-hidden="true"><path d="M100 0 Q110 90 200 100 Q110 110 100 200 Q90 110 0 100 Q90 90 100 0Z"/></svg>
